@@ -28,11 +28,11 @@ class Store(MethodView):
 @blp.route("/store")
 class StoresList(MethodView):
 
-    def get_stores():
+    def get(self):
         return {"stores":list(stores.values())}
 
 
-    def create_store():
+    def post(self):
         store_data = request.get_json()
 
         #make sure name key is included
