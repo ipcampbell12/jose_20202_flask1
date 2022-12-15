@@ -3,7 +3,8 @@ EXPOSE 5000
 
 #move into this folder
 WORKDIR /app
-RUN pip install flask
+COPY requirements.txt .
+RUN pip install -r requirements.txt
 
 #copies current folder in into current folder of image
 COPY . .
