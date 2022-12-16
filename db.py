@@ -1,13 +1,5 @@
-stores = {}
+from flask_sqlalchemy import SQLAlchemy
 
-#find 
-items = {
-    1:{
-        "name":"Chair",
-        "price":18.99
-    },
-    2:{
-        "name":"Table",
-        "price":150.50
-    }
-}
+#creates Sql alchemy object
+
+db = SQLAlchemy()
