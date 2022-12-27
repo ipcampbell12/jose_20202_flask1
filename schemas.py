@@ -44,8 +44,8 @@ class StoreSchema:
     id: fields.Int,
     name: fields.Str """
 
-name = fields.Str()
-store = fields.Nested(StoreSchema())
+# name = fields.Str()
+# store = fields.Nested(StoreSchema())
 
 
 class StoreSchema(PlainStoreSchema):

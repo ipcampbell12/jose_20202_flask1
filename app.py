@@ -4,8 +4,7 @@ from flask_smorest import Api
 
 from db import db
 import models 
-from models.item import ItemModel
-from models import ItemModel
+
 #models need to have been imported so sqlalchemy can create our tables
 
 #same as models.__init__
