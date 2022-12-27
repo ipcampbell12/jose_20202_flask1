@@ -30,6 +30,23 @@ class ItemSchema(PlainItemSchema):
     store_id = fields.Int(required=True, load_only=True)
     store = fields.Nested(PlainStoreSchema(),dump_only=True)
 
+# 
+""" {
+    name: 'asdf',
+    store: {
+        id: 1,
+        name: 'store 1'
+    }
+}
+
+// StoreSchema
+class StoreSchema:
+    id: fields.Int,
+    name: fields.Str """
+
+name = fields.Str()
+store = fields.Nested(StoreSchema())
+
 
 class StoreSchema(PlainStoreSchema):
     items = fields.List(fields.Nested(PlainItemSchema()),dump_only=True)
