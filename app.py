@@ -1,3 +1,4 @@
+import os 
 
 from flask import Flask
 from flask_smorest import Api
@@ -20,7 +21,9 @@ from resources.store import blp as StoreBlueprint
 #application factory pattern
 #can call function whenever you need, includign for when you want to write tests for your flask app
 #call the function istead of running the file to create a new flask app
-def create_app():
+
+#databse url argument in case you want to connect to a database
+def create_app(db_url=None):
     app = Flask(__name__)
 
     #configuration variables
@@ -31,8 +34,11 @@ def create_app():
     app.config['OPENAPI_URL_PREFIX'] = '/'
     app.config["OPENAPI_SWAGGER_UI_PATH"] = "/swagger-ui"
     app.config["OPENAPI_SWAGGER_UI_URL"] = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
-    app.config['SQLALCHEMY_DATABASE_URI'] = ""
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_url or os.getenv("DATABASE_URL","sqlite:///data.db")
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS']=False
 
+    
+    db.init_app(app)
 
     api = Api(app)
 
