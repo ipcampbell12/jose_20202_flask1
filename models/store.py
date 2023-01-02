@@ -9,7 +9,7 @@ class StoreModel(db.Model):
 
     #the other end of the relationship with item
     #needs to find all the items with store_id equal to this store's id
-    items = db.relationship("ItemModel", back_populates="store",lazy="dynamic")
+    items = db.relationship("ItemModel", back_populates="store",lazy="dynamic", cascade="all,delete")
 
     #lazy=dynamic items will not be fetched from database until it is told to
     #allows it a little faster, make request later

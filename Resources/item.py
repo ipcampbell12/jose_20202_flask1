@@ -24,8 +24,9 @@ class Item(MethodView):
     def delete(self, item_id):
         item = ItemModel.query.get_or_404(item_id)
 
-        #use this when you haven't gotten to implementing a certainf functionality yet 
-        raise NotImplementedError("Deleting an item is not implemented")
+        db.session.delete(item)
+        db.session.commit()
+        return {"message":f"The item {item.name} was deleted"}
 
 
     #order of decorators matter
