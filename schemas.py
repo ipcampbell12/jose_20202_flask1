@@ -21,6 +21,7 @@ class PlainStoreSchema(Schema):
 class ItemUpdateSchema(Schema):
     name = fields.Str()
     price = fields.Float()
+    store_id=fields.Int()
 
 #use marshmallow schemas to make sure data has been correclty typed
 

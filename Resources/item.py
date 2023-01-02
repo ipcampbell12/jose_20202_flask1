@@ -1,10 +1,12 @@
-import uuid
+
 from flask import request
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from schemas import ItemSchema, ItemUpdateSchema
-from db import items
+from sqlalchemy.exc import SQLAlchemyError
 
+from db import db
+from models import ItemModel
 
 blp = Blueprint("Items",__name__,description="Operations on items")
 
@@ -13,18 +15,18 @@ class Item(MethodView):
 
     @blp.response(200, ItemSchema)
     def get(self,item_id):
-        try:
-            return items[item_id]
-        except KeyError:
-            abort(404,message="Item not found")
 
+        #query attribute comes from db.Model, from flask_sqlalchemy
+        #retrieves item from database using primary key
+        item = ItemModel.query.get_or_404(item_id)
+        return item 
 
-    def delete(item_id):
-        try:
-            del items[item_id]
-            return {"message":"Item deleted"}
-        except KeyError:
-            abort(404,message="Item not found")
+    def delete(self, item_id):
+        item = ItemModel.query.get_or_404(item_id)
+
+        #use this when you haven't gotten to implementing a certainf functionality yet 
+        raise NotImplementedError("Deleting an item is not implemented")
+
 
     #order of decorators matter
     @blp.arguments(ItemUpdateSchema)
@@ -37,14 +39,32 @@ class Item(MethodView):
         # if "price" not in item_data or "name" not in item_data:
         #     abort(400, message="Bad request. Need to cinluded 'price' and 'name' ")
 
-        try:
-            item=items[item_id]
-            #in place modification of item, values in item_data replace values of item
-            item |= item_data
+        #need to remove or_404 or else clause won't run
+        item = ItemModel.query.get(item_id)
+        if item: 
+            item.price = item_data["price"]
+            item.name = item_data["name"]
+        else:
+            #if store id is not passed, this will fail
+            item = ItemModel(id=item_id,**item_data)
+        
+        db.session.add(item)
+        db.session.commit()
 
-            return item
-        except:
-            abort(404,message="Item not found" )
+        return item
+                    
+
+        #This approach is not itempotent
+        # item = ItemModel.query.get_or_404(item_id)
+
+        # item.price = item_data["price"]
+        # item.name = item_data["name"]
+
+        # db.session.add(item)
+        # db.session.commit()
+
+        # return item
+        # raise NotImplementedError("Updating an item is not implemented")
 
 
 @blp.route("/item")
@@ -53,7 +73,8 @@ class ItemList(MethodView):
     #many = True turns dictionary into a list?
     @blp.response(200,ItemSchema(many=True))
     def get(self):
-        return items.values()
+        return ItemModel.query.all()
+        # return items.values()
         #list of items, not object
         #return {"items":list(items.values())}
 
@@ -78,15 +99,23 @@ class ItemList(MethodView):
         #     )
         
         #check if item already exists
-        for item in items.values():
-            if (item_data["name"] == item["name"]
-            and item_data["store_id"] == item["store_id"] ):
-                abort(400, message="Item already exists")
+        #for item in items.values():
+            #Already checkedin databas so this code is not necessary
+        #    if (item_data["name"] == item["name"]
+        #     and item_data["store_id"] == item["store_id"] ):
+        #         abort(400, message="Item already exists")
 
-        item_id =uuid.uuid4().hex
-    
-        item = {**item_data, "id":item_id}
-    
-        items[item_id] = item 
+        #turns data from client into keyword arguments that will be passed to item model
+        item = ItemModel(**item_data)
+
+        try: 
+            #add to session => put it in a place where it's not wrriten in the database yet, can add multiple things if you wish
+            #if there is a problem, will skip to error
+            db.session.add(item)
+
+            #commit is when it actually gets saved
+            db.session.commit()
+        except SQLAlchemyError:
+            abort(500, message="An error occurred when inserting an ite,")
 
         return item
