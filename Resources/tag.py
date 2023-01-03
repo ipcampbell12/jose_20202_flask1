@@ -21,7 +21,7 @@ class TagsInStore(MethodView):
         return store.tags.all()
 
 
-
+    #create a new tag for a particular store
     @blp.arguments(TagSchema)
     @blp.response(200,TagSchema)
     def post(self, tag_data, store_id):
@@ -36,6 +36,14 @@ class TagsInStore(MethodView):
             abort(500, message=str(e))
 
         return tag
+
+@blp.route('/tag')
+class AllTags(MethodView):
+    @blp.response(200,TagSchema(many=True))
+    def get(self):
+        tags = TagModel.query.all()
+
+        return tags
 
 
 
@@ -61,6 +69,7 @@ class LinkTagsToItem(MethodView):
 
         return tag
 
+    #unlink a tag from an item
     @blp.response(200,TagAndItemSchema)
     def delete(self, item_id, tag_id):
         item = ItemModel.query.get_or_404(item_id)
