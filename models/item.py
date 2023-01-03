@@ -13,5 +13,6 @@ class ItemModel(db.Model):
 
     #store variable will get populated with StoreModel object, whose id matches the Foreign key
     store = db.relationship("StoreModel",back_populates="items")
+    tags = db.relationship("TagModel",back_populates="items",seconadry="item_tags")
 
     #I think the "store" is like a hypothetical column that gets added to this table
