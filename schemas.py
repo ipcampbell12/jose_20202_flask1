@@ -49,3 +49,11 @@ class TagAndItemSchema(Schema):
     message = fields.Str()
     item = fields.Nested(ItemSchema)
     tag = fields.Nested(TagSchema)
+
+class UserSchema(Schema):
+    #dump_only because you will never recieve an id from client (read only)
+    id = fields.Int(dump_only=True)
+    username = fields.Str(required=True)
+
+    #load only because you never wwant to return user's password (write only)
+    password = fields.Str(required=True, load_only=True)
