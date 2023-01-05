@@ -13,6 +13,7 @@ blp = Blueprint("Items",__name__,description="Operations on items")
 @blp.route("/item/<int:item_id>")
 class Item(MethodView):
 
+    @jwt_required()
     @blp.response(200, ItemSchema)
     def get(self,item_id):
 
@@ -21,6 +22,7 @@ class Item(MethodView):
         item = ItemModel.query.get_or_404(item_id)
         return item 
 
+    @jwt_required()
     def delete(self, item_id):
         item = ItemModel.query.get_or_404(item_id)
 
@@ -30,6 +32,7 @@ class Item(MethodView):
 
 
     #order of decorators matter
+    @jwt_required()
     @blp.arguments(ItemUpdateSchema)
     @blp.response(200, ItemSchema)
     def put(self,item_data, item_id):
@@ -72,6 +75,7 @@ class Item(MethodView):
 class ItemList(MethodView):
 
     #many = True turns dictionary into a list?
+    @jwt_required()
     @blp.response(200,ItemSchema(many=True))
     def get(self):
         return ItemModel.query.all()
