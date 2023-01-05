@@ -1,8 +1,8 @@
 
-from flask import request
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from schemas import ItemSchema, ItemUpdateSchema
+from flask_jwt_extended import jwt_required
 from sqlalchemy.exc import SQLAlchemyError
 
 from db import db
@@ -81,6 +81,8 @@ class ItemList(MethodView):
 
 
     #2nd argument after self contains json data that has been validated by the schema
+
+    @jwt_required()
     @blp.arguments(ItemSchema)
     @blp.response(200, ItemSchema)
     def post(self, item_data):

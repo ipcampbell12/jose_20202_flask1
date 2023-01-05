@@ -1,6 +1,12 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
+from flask_jwt_extended import create_access_token
 from schemas import UserSchema
+
+#can only get access token by providing correct username and password
+#whenever APi receives an access token, you know that the client logged in
+
+
 
 #compares incoming password with one stored in database
 from passlib.hash import pbkdf2_sha256
@@ -10,6 +16,29 @@ from db import db
 from models import UserModel
 
 blp = Blueprint("Users",__name__,description="Operations on users")
+
+
+@blp.route("/login")
+class UserLoginClass(MethodView):
+
+    @blp.arguments(UserSchema)
+    def post(self, user_data):
+
+        #check to make sure user exists in database
+        user = UserModel.query.filter(
+            UserModel.username == user_data["username"]
+        ).first()
+
+        #check password recieved from client against password from database
+        if user and pbkdf2_sha256.verify(user_data["password"], user.password):
+
+            #user_id is stored in access token
+            access_token = create_access_token(identity=user.id)
+
+            return {"access_token":access_token}
+            
+        abort(401, message = "Invalide credentials")
+
 
 
 @blp.route("/register")
@@ -49,3 +78,11 @@ class User(MethodView):
         db.session.commit()
 
         return {"message":f"User {user.username} was deleted"},200
+
+
+@blp.route("/user")
+class UserList(MethodView):
+    @blp.response(200,UserSchema(many=True))
+    def get(self):
+        return UserModel.query.all()
+       
