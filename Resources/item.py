@@ -25,7 +25,7 @@ class Item(MethodView):
     @jwt_required()
     def delete(self, item_id):
 
-        #using jwt claims
+        #using jwt claim
         jwt = get_jwt()
         if not jwt.get("is_admin"):
             abort(401, message="Admin privilege required")
