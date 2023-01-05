@@ -10,7 +10,7 @@ from models import TagModel, StoreModel, ItemModel
 
 blp = Blueprint("Tags",__name__,description="Operations on tags")
 
-@blp.route("/store/<string:store_id>/tag")
+@blp.route("/store/<int:store_id>/tag")
 class TagsInStore(MethodView):
 
     #list of tags for that store
@@ -47,7 +47,7 @@ class AllTags(MethodView):
 
 
 
-@blp.route("/item/<string:item_id>/tag/<string:tag_id>")
+@blp.route("/item/<int:item_id>/tag/<string:tag_id>")
 class LinkTagsToItem(MethodView):
 
 

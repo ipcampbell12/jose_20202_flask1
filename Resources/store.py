@@ -11,7 +11,7 @@ from models import StoreModel
 blp = Blueprint("Stores",__name__,description="Operations on stores")
 
 #connects methods this endpoint
-@blp.route("/store/<string:store_id>")
+@blp.route("/store/<int:store_id>")
 class Store(MethodView):
 
     @blp.response(201, StoreSchema)
