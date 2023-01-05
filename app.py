@@ -6,6 +6,7 @@ from flask_smorest import Api
 from flask_jwt_extended import JWTManager
 
 from db import db
+from blocklist import BLOCKLIST
 import models 
 
 #models need to have been imported so sqlalchemy can create our tables
@@ -58,6 +59,33 @@ def create_app(db_url=None):
     #usually deployed in an envrionment variable (gitignore)
     app.config["JWT_SECRET_KEY"] = "202818376306308343738149448109322603617"
     jwt = JWTManager(app)
+
+    #If this function returns True, the request is termined, and user will get error 
+    @jwt.token_in_blocklist_loader
+    def check_if_token_in_blocklist(jwt_header, jwt_payload):
+        return jwt_payload['jti'] in BLOCKLIST
+
+    #message that is sent when function above returns true
+    @jwt.revoked_token_loader
+    def revoked_token_callabck(jwt_header, jwt_payload):
+        return (
+            jsonify(
+                {"description":"The token has been revoked.", "error":"token_reovked"}
+            ),
+            401,
+        )
+
+
+    #claims are less commonly used
+    #runs every time you create an access token
+    #allows you to do some work when you create the jwt, instead of when you use the jwt
+    @jwt.additional_claims_loader
+    def add_claims_to_jwt(identity):
+        # would be better to look in database and see whether the user is an admin
+        if identity == 1:
+            return {"is_admin":True}
+        return {"is_admin":False}
+
 
     # returned when jwt has expired
     @jwt.expired_token_loader
