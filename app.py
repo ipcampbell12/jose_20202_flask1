@@ -1,7 +1,7 @@
 import os 
 import secrets
 
-from flask import Flask
+from flask import Flask, jsonify
 from flask_smorest import Api
 from flask_jwt_extended import JWTManager
 
@@ -58,6 +58,38 @@ def create_app(db_url=None):
     #usually deployed in an envrionment variable (gitignore)
     app.config["JWT_SECRET_KEY"] = "202818376306308343738149448109322603617"
     jwt = JWTManager(app)
+
+    # returned when jwt has expired
+    @jwt.expired_token_loader
+    def expired_token_callback(jwt_header, jwt_payload):
+        return (
+            jsonify({"message":"The token has expired.", "error":"token_expired"},401,)
+        )
+
+    #erorr argument is for when there is no JWT or it is not valid
+    #payload and header cannot be extracted from jwt if it's not there
+    # if token was invalid
+    @jwt.invalid_token_loader
+    def invalid_token_callback(error):
+        return (
+            jsonify(
+                {"message":"Signature verification failed.","error":"invalid_token"}
+            ),
+            401,
+        )
+
+    #if token was missing 
+    @jwt.unauthorized_loader
+    def missing_token_callback(error):
+        return (
+            jsonify(
+                {
+                    "description":"Request does not contain access token.",
+                    "error":"authorization_required"
+                }
+            ),
+            401,
+        )
 
     #run this function before first api request
     #only going to run if tables don't already exist
