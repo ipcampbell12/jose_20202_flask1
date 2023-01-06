@@ -58,6 +58,8 @@ def create_app(db_url=None):
     #get this by running function above in python terminal
     #usually deployed in an envrionment variable (gitignore)
     app.config["JWT_SECRET_KEY"] = "202818376306308343738149448109322603617"
+
+
     jwt = JWTManager(app)
 
     #If this function returns True, the request is termined, and user will get error 
@@ -75,7 +77,17 @@ def create_app(db_url=None):
             401,
         )
 
-
+    #expected a fresh otken, but got a non-fresh token
+    @jwt.needs_fresh_token_loader
+    def token_not_fresh_callback(jwt_header,jwt_payload):    
+        return (
+            jsonify(
+                {
+                    "description":"The token is not fresh.",
+                    "error":"fresh_token_required"
+                }
+            )
+        )
     #claims are less commonly used
     #runs every time you create an access token
     #allows you to do some work when you create the jwt, instead of when you use the jwt
